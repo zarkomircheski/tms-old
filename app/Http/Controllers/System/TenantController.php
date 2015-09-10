@@ -44,7 +44,7 @@ class TenantController extends Controller
         //store tenant
         //$tenant = new Tenant($request->all());
         $tenantId = $tenant->save($request->all());
-        $tenantData = $tenant->get($tenantId, ['id', 'subdomain', 'admin_name', 'admin_email']);
+        $tenantData = $tenant->getFirst($tenantId, ['id', 'subdomain', 'admin_name', 'admin_email']);
         $response = $this->dispatch(new tenantCreateCommand($tenantData));
 
         if(! $response){

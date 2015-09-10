@@ -20,40 +20,65 @@ class BaseRepo implements BaseRepositoryInterface {
     public function all(array $columns = [])
     {
         $this->data = $this->model->all();
-        return $this->retrieve($columns);
+        return $this->_retrieve($columns, false);
     }
 
     public function get($id, array $columns = [])
     {
-        return $this->getBy(['id' => $id], $columns);
+        return $this->_getBy(['id' => $id], $columns, false);
+    }
+    
+    public function getFirst($id, array $columns = [])
+    {
+        return $this->_getBy(['id' => $id], $columns, true);
     }
 
     public function getBy(array $selectColumns, array $retrieveColumns = [])
+    {
+        return $this->_getBy($selectColumns, $retrieveColumns, false);
+    }
+    
+    public function getFirstBy(array $selectColumns, array $retrieveColumns = [])
+    {
+        return $this->_getBy($selectColumns, $retrieveColumns, true);
+    }
+
+    protected function _getBy(array $selectColumns, array $retrieveColumns = [], $first)
     {
         $query = $this->model->query();
         foreach ($selectColumns as $column => $value) {
             $query->where($column, $value);
         }
-        $this->data = $query->get();
-        return $this->retrieve($retrieveColumns);
+        if($first == true)
+            $this->data = $query->first();
+        else
+            $this->data = $query->get();
+        
+        return $this->_retrieve($retrieveColumns, $first);
     }
 
-    protected function retrieve(array $columns = [])
+    protected function _retrieve(array $columns = [], $first)
     {
         $data = $this->data->toArray();
         $returnData = [];
 
-        foreach($data as $row)
+        if($first == true)
         {
-            $returnData[] = $this->retrieveSingle($row, $columns);
+            return $this->_retrieveSingle($data, $columns);
+        }
+        else
+        {
+            foreach($data as $row)
+            {
+                $returnData[] = $this->_retrieveSingle($row, $columns);
+            }
+
+            return $returnData;
         }
 
-        if(count($returnData)  == 1)
-            return $returnData[0];
-        return $returnData;
     }
 
-    protected function retrieveSingle($row, $columns)
+    protected function _retrieveSingle($row, $columns)
     {
         if(count($columns))
             $row = array_intersect_key($row, array_flip($columns));
