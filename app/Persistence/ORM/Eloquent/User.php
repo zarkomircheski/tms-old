@@ -1,4 +1,4 @@
-<?php namespace App\Models\Eloquent;
+<?php namespace App\Persistence\ORM\Eloquent;
 
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;

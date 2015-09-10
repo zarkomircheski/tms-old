@@ -1,6 +1,7 @@
 <?php namespace App\Commands\system;
 
 use App\Commands\Command;
+use App\Persistence\Interfaces\System\TenantRepoInterface;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -10,8 +11,8 @@ use Config;
 
 class tenantCreateCommand extends Command implements SelfHandling
 {
-    public $tenant;
-    public $database;
+    protected $tenantId;
+    protected $database;
     protected $rollback = [
         'create_db'         => false,
         'run_migrations'    => false,
@@ -23,10 +24,10 @@ class tenantCreateCommand extends Command implements SelfHandling
      *
      * @return void
      */
-    public function __construct($tenant)
+    public function __construct(array $tenant)
     {
         $this->tenant = $tenant;
-        $this->database = $tenant->subdomain;
+        $this->database = $tenant['subdomain'];
     }
 
     /**
@@ -76,7 +77,7 @@ class tenantCreateCommand extends Command implements SelfHandling
             } catch (Exeption $e) {
                 Log::error("CREATE DATABASE ATTEMPT:/n
                  -db_name = '{$this->database}'/n
-                 -tenant_id = '{$this->tenant->id}'/n
+                 -tenant_id = '{$this->tenant['id']}'/n
                  -message = " . $e->getMessage());
                 return false;
             }
@@ -84,7 +85,7 @@ class tenantCreateCommand extends Command implements SelfHandling
         else {
             Log::error("CREATE DATABASE ATTEMPT:/n
                  -db_name = '{$this->database}'/n
-                 -tenant_id = '{$this->tenant->id}'/n
+                 -tenant_id = '{$this->tenant['id']}'/n
                  -message = 'db name already exists'");
             return false;
         }
@@ -102,7 +103,7 @@ class tenantCreateCommand extends Command implements SelfHandling
         } catch (Exeption $e) {
             Log::error("rRUN MIGRATIONS ATTEMPT:/n
                  -db_name = '{$this->database}'/n
-                 -tenant_id = '{$this->tenant->id}'/n
+                 -tenant_id = '{$this->tenant['id']}'/n
                  -message = " . $e->getMessage());
             return false;
         }
@@ -115,8 +116,8 @@ class tenantCreateCommand extends Command implements SelfHandling
         Config::set('database.connections.mysql_tenant.database', $this->database);
 
         //set administrator credentials
-        $name = $this->tenant->admin_name;
-        $emai = $this->tenant->admin_email;
+        $name = $this->tenant['admin_name'];
+        $emai = $this->tenant['admin_email'];
         $password = uniqid();
 
         try {
@@ -134,7 +135,7 @@ class tenantCreateCommand extends Command implements SelfHandling
         } catch (Exeption $e) {
             Log::error("SET ADMIN CREDENTIALS ATTEMPT:/n
                  -db_name = '{$this->database}'/n
-                 -tenant_id = '{$this->tenant->id}'/n
+                 -tenant_id = '{$this->tenant['id']}'/n
                  -message = " . $e->getMessage());
             return false;
         }
@@ -154,7 +155,7 @@ class tenantCreateCommand extends Command implements SelfHandling
         } catch (Exeption $e) {
             Log::error("SEND EMAIL ATTEMPT:/n
                  -db_name = '{$this->database}'/n
-                 -tenant_id = '{$this->tenant->id}'/n
+                 -tenant_id = '{$this->tenant['id']}'/n
                  -message = " . $e->getMessage());
             return false;
         }
@@ -169,17 +170,6 @@ class tenantCreateCommand extends Command implements SelfHandling
         if($this->rollback['send_email']) {
 
         }
-
-//        if($this->rollback['seed_data']) {
-//            Config::set('database.connections.mysql_tenant.database', $this->database);
-//            $response = DB::connection('mysql_tenant')->table('users')->where('email', $this->tenant->email)->delete();
-//        }
-//
-//        if($this->rollback['run_migrations']) {
-//            Config::set('database.connections.mysql_tenant.database', $this->database);
-//            Artisan::call('migrate', ['--force', '--database' => 'mysql_tenant']);
-//
-//        }
 
         if($this->rollback['create_db']) {
             DB::statement("DROP DATABASE {$this->database}");

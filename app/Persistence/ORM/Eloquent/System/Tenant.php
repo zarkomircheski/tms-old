@@ -6,7 +6,7 @@
  * Time: 22:46
  */
 
-namespace App\Models\Eloquent\System;
+namespace App\Persistence\ORM\Eloquent\System;
 
 use Illuminate\Database\Eloquent\Model;
 

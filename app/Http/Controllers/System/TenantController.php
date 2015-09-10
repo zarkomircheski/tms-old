@@ -3,7 +3,7 @@
 use App\Commands\system\tenantCreateCommand;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TenantCreateRequest;
-use App\Models\Eloquent\System\Tenant;
+use App\Persistence\Interfaces\System\TenantRepoInterface;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
@@ -15,10 +15,10 @@ class TenantController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(TenantRepoInterface $tenant)
     {
         //list tenants
-        $tenants = Tenant::all()->toArray();
+        $tenants = $tenant->all(['id','subdomain', 'company_name', 'admin_name', 'admin_surname', 'admin_email']);
         return view('system.tenant.list')->with(compact('tenants'));
     }
 
@@ -39,16 +39,16 @@ class TenantController extends Controller
      * @param TenantCreateRequest $request
      * @return Response
      */
-    public function store(TenantCreateRequest $request)
+    public function store(TenantCreateRequest $request, TenantRepoInterface $tenant)
     {
         //store tenant
-        $tenant = new Tenant($request->all());
-        $tenant->save();
-
-        $response = $this->dispatch(new tenantCreateCommand($tenant));
+        //$tenant = new Tenant($request->all());
+        $tenantId = $tenant->save($request->all());
+        $tenantData = $tenant->get($tenantId, ['id', 'subdomain', 'admin_name', 'admin_email']);
+        $response = $this->dispatch(new tenantCreateCommand($tenantData));
 
         if(! $response){
-            $tenant->delete();
+            $tenant->delete($tenantId);
             return \Redirect::back()->withErrors(['form' => 'there was an error!']);
         }
 
@@ -94,10 +94,9 @@ class TenantController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($id)
+    public function destroy(TenantRepoInterface $tenant, $id)
     {
-        $tenant = Tenant::find($id);
-        $tenant->delete();
+        $tenant->delete($id);
         return \Redirect::route('tenant.index');
     }
 }

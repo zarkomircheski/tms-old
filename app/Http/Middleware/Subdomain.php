@@ -8,12 +8,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Persistence\Repositories\Eloquent\System\TenantRepo;
 use Closure;
 use Illuminate\Contracts\Routing\Middleware;
 use Config;
 use DB;
 use App;
-use App\Models\Eloquent\System\Tenant;
 
 class Subdomain implements Middleware{
 
@@ -48,7 +48,8 @@ class Subdomain implements Middleware{
         }
 
         // Get the tenant, abort if null
-        $tenant = Tenant::whereSubdomain("{$subdomain}")->first();
+        $tenantRepo = new TenantRepo();
+        $tenant = $tenantRepo->getBy(["subdomain" => "{$subdomain}"]);
 
         if ($tenant == null) { App::abort(404); }
 

@@ -26,7 +26,8 @@
         "App\\Providers\\AppServiceProvider",
         "App\\Providers\\EventServiceProvider",
         "App\\Providers\\RouteServiceProvider",
-        "App\\Providers\\MacrosServiceProvider"
+        "App\\Providers\\MacrosServiceProvider",
+        "App\\Providers\\RepositoryServiceProvider"
     ],
     "eager": [
         "Illuminate\\Auth\\AuthServiceProvider",
@@ -43,7 +44,8 @@
         "Zizaco\\Entrust\\EntrustServiceProvider",
         "App\\Providers\\AppServiceProvider",
         "App\\Providers\\EventServiceProvider",
-        "App\\Providers\\RouteServiceProvider"
+        "App\\Providers\\RouteServiceProvider",
+        "App\\Providers\\RepositoryServiceProvider"
     ],
     "deferred": {
         "command.app.name": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
@@ -63,6 +65,7 @@
         "command.listener.make": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
         "command.model.make": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
         "command.optimize": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
+        "command.policy.make": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
         "command.provider.make": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
         "command.request.make": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
         "command.route.cache": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",

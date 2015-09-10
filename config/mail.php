@@ -54,7 +54,8 @@ return [
     |
     */
 
-    'from' => ['address' => null, 'name' => null],
+//    'from' => ['address' => null, 'name' => null],
+    'from' => ['address' => 'info@tms.com', 'name' => 'zarko mircheski'],
 
     /*
     |--------------------------------------------------------------------------
@@ -119,6 +120,6 @@ return [
     |
     */
 
-    'pretend' => true,
+    'pretend' => false,
 
 ];
