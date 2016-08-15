@@ -28,6 +28,11 @@ class BaseRepo implements BaseRepositoryInterface {
         return $this->getBy(['id' => $id], $columns);
     }
 
+    public function getFirst($id, array $columns = [])
+    {
+        return $this->getBy(['id' => $id], $columns);
+    }
+
     public function getBy(array $selectColumns, array $retrieveColumns = [])
     {
         $query = $this->model->query();
