@@ -1,6 +1,8 @@
 <?php namespace App\Http\Controllers\System;
 
-use App\Commands\system\tenantCreateCommand;
+use App\Commands\system\CreateTenantDBCommand;
+use App\Commands\system\DestroyTenantDBComaind;
+use App\Commands\system\DestroyTenantDBCommand;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TenantCreateRequest;
 use App\Persistence\Interfaces\System\TenantRepoInterface;
@@ -45,7 +47,7 @@ class TenantController extends Controller
         //$tenant = new Tenant($request->all());
         $tenantId = $tenant->save($request->all());
         $tenantData = $tenant->get($tenantId, ['id', 'subdomain', 'admin_name', 'admin_email']);
-        $response = $this->dispatch(new tenantCreateCommand($tenantData));
+        $response = $this->dispatch(new CreateTenantDBCommand($tenantData));
 
         if(! $response){
             $tenant->delete($tenantId);
@@ -94,9 +96,11 @@ class TenantController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy(TenantRepoInterface $tenant, $id)
+    public function destroy(TenantRepoInterface $tenantRepo, $id)
     {
-        $tenant->delete($id);
+        $tenant = $tenantRepo->get($id);
+        $response = $this->dispatch(new DestroyTenantDBCommand($tenant));
+        $tenantRepo->delete($id);
         return \Redirect::route('tenant.index');
     }
 }

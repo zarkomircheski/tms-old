@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Config;
 
-class tenantCreateCommand extends Command implements SelfHandling
+class CreateTenantDBCommand extends Command implements SelfHandling
 {
     protected $tenantId;
     protected $database;
@@ -19,10 +19,12 @@ class tenantCreateCommand extends Command implements SelfHandling
         'seed_data'         => false,
         'send_email'        => false,
     ];
+    private $tenant;
+
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param array $tenant
      */
     public function __construct(array $tenant)
     {
@@ -33,7 +35,7 @@ class tenantCreateCommand extends Command implements SelfHandling
     /**
      * Execute the command.
      *
-     * @return void
+     * @return boolean
      */
     public function handle()
     {
@@ -67,14 +69,13 @@ class tenantCreateCommand extends Command implements SelfHandling
     protected function createDatabase() {
 
         $response = DB::select("show databases like '{$this->database}'");
-
         if (! count($response) ) {
             try {
                 $response = DB::statement("CREATE DATABASE {$this->database}");
-                $this->rollback['create_db'] = true;
                 return true;
 
             } catch (Exeption $e) {
+                $this->rollback['create_db'] = true;
                 Log::error("CREATE DATABASE ATTEMPT:/n
                  -db_name = '{$this->database}'/n
                  -tenant_id = '{$this->tenant['id']}'/n
@@ -83,6 +84,7 @@ class tenantCreateCommand extends Command implements SelfHandling
             }
         }
         else {
+            $this->rollback['create_db'] = true;
             Log::error("CREATE DATABASE ATTEMPT:/n
                  -db_name = '{$this->database}'/n
                  -tenant_id = '{$this->tenant['id']}'/n
@@ -93,7 +95,7 @@ class tenantCreateCommand extends Command implements SelfHandling
     }
 
     /**
-     *
+     * @return bool
      */
     protected function runMigrations() {
         Config::set('database.connections.mysql_tenant.database', $this->database);
@@ -101,16 +103,20 @@ class tenantCreateCommand extends Command implements SelfHandling
         try {
             Artisan::call('migrate', ['--path' => 'database/migrations/tenant', '--database' => 'mysql_tenant']);
         } catch (Exeption $e) {
+            $this->rollback['run_migrations'] = true;
             Log::error("rRUN MIGRATIONS ATTEMPT:/n
                  -db_name = '{$this->database}'/n
                  -tenant_id = '{$this->tenant['id']}'/n
                  -message = " . $e->getMessage());
             return false;
         }
-        $this->rollback['run_migrations'] = true;
+
         return true;
     }
 
+    /**
+     * @return bool
+     */
     protected function seedData() {
         //set db connection
         Config::set('database.connections.mysql_tenant.database', $this->database);
@@ -133,6 +139,7 @@ class tenantCreateCommand extends Command implements SelfHandling
             return $response;
 
         } catch (Exeption $e) {
+            $this->rollback['seed_data'] = true;
             Log::error("SET ADMIN CREDENTIALS ATTEMPT:/n
                  -db_name = '{$this->database}'/n
                  -tenant_id = '{$this->tenant['id']}'/n
@@ -140,7 +147,6 @@ class tenantCreateCommand extends Command implements SelfHandling
             return false;
         }
 
-        $this->rollback['seed_data'] = true;
         return true;
     }
 
@@ -153,6 +159,7 @@ class tenantCreateCommand extends Command implements SelfHandling
                 $message->to('foo@example.com')->cc('bar@example.com');
             });
         } catch (Exeption $e) {
+            $this->rollback['send_email'] = true;
             Log::error("SEND EMAIL ATTEMPT:/n
                  -db_name = '{$this->database}'/n
                  -tenant_id = '{$this->tenant['id']}'/n
@@ -160,7 +167,6 @@ class tenantCreateCommand extends Command implements SelfHandling
             return false;
         }
 
-        $this->rollback['send_email'] = true;
         return true;
 
     }

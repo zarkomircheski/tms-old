@@ -26,7 +26,7 @@ Route::group([
 
     Route::get('tenants', [
         'as' => 'tenant.index',
-        'uses' => 'TenantController@index',
+            'uses' => 'TenantController@index',
         'role' => 'admin',
         'permissions' => '',
     ]);

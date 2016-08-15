@@ -20,7 +20,7 @@ class BaseRepo implements BaseRepositoryInterface {
     public function all(array $columns = [])
     {
         $this->data = $this->model->all();
-        return $this->retrieve($columns);
+        return $this->retrieve($columns, true);
     }
 
     public function get($id, array $columns = [])
@@ -38,7 +38,7 @@ class BaseRepo implements BaseRepositoryInterface {
         return $this->retrieve($retrieveColumns);
     }
 
-    protected function retrieve(array $columns = [])
+    protected function retrieve(array $columns = [], $wrap = false)
     {
         $data = $this->data->toArray();
         $returnData = [];
@@ -48,7 +48,7 @@ class BaseRepo implements BaseRepositoryInterface {
             $returnData[] = $this->retrieveSingle($row, $columns);
         }
 
-        if(count($returnData)  == 1)
+        if(count($returnData)  == 1 && !$wrap)
             return $returnData[0];
         return $returnData;
     }
