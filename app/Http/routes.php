@@ -11,8 +11,9 @@
 |
 */
 
-$domain = "tms.ngrok.com";
-$domain = "1_tms";
+/* setup multi-tenant vars */
+$domain = \Config::get('system.domain');
+//the ssy subdomain is the system admin area where new tenants are registered
 $sysSubdomain = \Config::get('system.subdomain');
 
 include_once "Routes/system_routes.php";

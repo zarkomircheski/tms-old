@@ -21,4 +21,11 @@ Route::group([
         'uses' => 'HomeController@index'
     ]);
 
+    Route::resource('vehicle', 'VehicleController');
+    Route::get('vehicles', 'VehicleController@index')->name('vehicles'); //override route for plural name
+
+    Route::resource('trailer', 'trailerController');
+    Route::get('trailers', 'TrailerController@index')->name('trailers'); //override route for plural name
+
+
 });

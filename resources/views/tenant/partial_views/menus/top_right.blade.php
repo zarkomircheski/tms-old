@@ -5,6 +5,6 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
     </button>
-    <a class="navbar-brand" href="{{URL::route('home')}}">TMS SYSTEM</a>
+    <a class="navbar-brand" href="{{URL::route('home')}}">TMS TENANT</a>
 </div>
 <!-- /.navbar-header -->

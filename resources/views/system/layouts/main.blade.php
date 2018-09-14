@@ -11,7 +11,7 @@
     @include('system.section_includes.script_libraries')
     @include('system.section_includes.scripts')
 
-    <title>TMS</title>
+    <title>TMS-SYSTEM</title>
 </head>
 <!-- end head -->
 <body>

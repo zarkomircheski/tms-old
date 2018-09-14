@@ -6,5 +6,6 @@
  * Time: 22:35
  */
 return [
+    'domain' => env('APP_DOMAIN', 'tms'),
     'subdomain' => 'system'
 ];
